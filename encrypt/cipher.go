@@ -43,7 +43,6 @@ func Decrypt(key, cipherHex string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	if len(cipherText) < aes.BlockSize {
 		return "", errors.New("encrypt: cipher text too short")
 	}
