@@ -10,18 +10,6 @@ import (
 	"io"
 )
 
-// encryptStream creates and returns a cipher.Stream for encrypting data using
-// AES-256 in CFB mode. It takes a key as a string and an initialization vector
-// (IV) as a byte slice. Returns the cipher.Stream for encryption or an error
-// if the cipher block creation fails.
-func encryptStream(key string, iv []byte) (cipher.Stream, error) {
-	block, err := newCipherBlock(key)
-	if err != nil {
-		return nil, err
-	}
-	return cipher.NewCFBEncrypter(block, iv), nil
-}
-
 // EncryptWriter creates and returns a cipher.StreamWriter that encrypts data
 // written to it using AES-256 in CFB mode. It takes a key as a string and an
 // io.Writer where the encrypted data will be written. Returns the
@@ -43,16 +31,16 @@ func EncryptWriter(key string, w io.Writer) (*cipher.StreamWriter, error) {
 	return &cipher.StreamWriter{S: stream, W: w}, nil
 }
 
-// decryptStream creates and returns a cipher.Stream for decrypting data using
-// AES-256 in CFB mode. It takes a key as a string and an initialization vector (IV)
-// as a byte slice. Returns the cipher.Stream for decryption or an error if the
-// cipher block creation fails.
-func decryptStream(key string, iv []byte) (cipher.Stream, error) {
+// encryptStream creates and returns a cipher.Stream for encrypting data using
+// AES-256 in CFB mode. It takes a key as a string and an initialization vector
+// (IV) as a byte slice. Returns the cipher.Stream for encryption or an error
+// if the cipher block creation fails.
+func encryptStream(key string, iv []byte) (cipher.Stream, error) {
 	block, err := newCipherBlock(key)
 	if err != nil {
 		return nil, err
 	}
-	return cipher.NewCFBDecrypter(block, iv), nil
+	return cipher.NewCFBEncrypter(block, iv), nil
 }
 
 // DecryptReader creates and returns a cipher.StreamReader that decrypts data read
@@ -71,6 +59,18 @@ func DecryptReader(key string, r io.Reader) (*cipher.StreamReader, error) {
 		return nil, err
 	}
 	return &cipher.StreamReader{S: stream, R: r}, nil
+}
+
+// decryptStream creates and returns a cipher.Stream for decrypting data using
+// AES-256 in CFB mode. It takes a key as a string and an initialization vector (IV)
+// as a byte slice. Returns the cipher.Stream for decryption or an error if the
+// cipher block creation fails.
+func decryptStream(key string, iv []byte) (cipher.Stream, error) {
+	block, err := newCipherBlock(key)
+	if err != nil {
+		return nil, err
+	}
+	return cipher.NewCFBDecrypter(block, iv), nil
 }
 
 // newCipherBlock creates and returns a new AES cipher.Block using the provided key.
