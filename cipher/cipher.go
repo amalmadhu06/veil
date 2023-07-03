@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -21,24 +20,6 @@ func encryptStream(key string, iv []byte) (cipher.Stream, error) {
 		return nil, err
 	}
 	return cipher.NewCFBEncrypter(block, iv), nil
-}
-
-// Encrypt encrypts the provided plaintext using AES-256 in CFB mode with the given
-// key. It returns the encrypted ciphertext as a hex-encoded string or an error if
-// encryption fails.
-func Encrypt(key, plaintext string) (string, error) {
-	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", err
-	}
-	stream, err := encryptStream(key, iv)
-	if err != nil {
-		return "", err
-	}
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], []byte(plaintext))
-
-	return fmt.Sprintf("%x", ciphertext), nil
 }
 
 // EncryptWriter creates and returns a cipher.StreamWriter that encrypts data
@@ -72,31 +53,6 @@ func decryptStream(key string, iv []byte) (cipher.Stream, error) {
 		return nil, err
 	}
 	return cipher.NewCFBDecrypter(block, iv), nil
-}
-
-// Decrypt decrypts the provided ciphertext using AES-256 in CFB mode with the
-// given key. It takes the encrypted ciphertext as a hex-encoded string and returns
-// the decrypted plaintext or an error if decryption fails.
-func Decrypt(key, cipherHex string) (string, error) {
-	ciphertext, err := hex.DecodeString(cipherHex)
-	if err != nil {
-		return "", err
-	}
-
-	if len(ciphertext) < aes.BlockSize {
-		return "", errors.New("encrypt: cipher too short")
-	}
-	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
-
-	stream, err := decryptStream(key, iv)
-	if err != nil {
-		return "", err
-	}
-
-	// XORKeyStream can work in-place if the two arguments are the same.
-	stream.XORKeyStream(ciphertext, ciphertext)
-	return string(ciphertext), nil
 }
 
 // DecryptReader creates and returns a cipher.StreamReader that decrypts data read
