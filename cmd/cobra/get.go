@@ -14,7 +14,7 @@ var getCmd = &cobra.Command{
 			fmt.Printf("Key not provided. eg: veil get twitter_api_key \n")
 			return
 		}
-		v := veil.File(encodingKey, secretsPath())
+		v := veil.NewVile(encodingKey, secretsPath())
 		key := args[0]
 		value, err := v.Get(key)
 		if err != nil {

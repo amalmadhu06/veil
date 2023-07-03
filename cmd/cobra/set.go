@@ -21,7 +21,7 @@ eg:
 			return
 		}
 
-		v := veil.File(encodingKey, secretsPath())
+		v := veil.NewVile(encodingKey, secretsPath())
 		key, value := args[0], args[1]
 		err := v.Set(key, value)
 		if err != nil {
